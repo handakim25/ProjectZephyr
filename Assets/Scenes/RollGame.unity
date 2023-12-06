@@ -298,6 +298,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae705d06ef7a29842a71022d093c0e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tiles: {fileID: 0}
+  _tileOffset: {x: 0.5, y: 0}
+  _tilePalettePath: 
+  _tilePalette: {fileID: 0}
+  _testTilePrefab: {fileID: 160152557780894736, guid: db5764494587c8f41877a0526aa855d7, type: 3}
+  _curStage: {fileID: 11400000, guid: dbe321a4d7d8e2d4599f42998eeb2647, type: 2}
 --- !u!1 &552520004
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,7 +357,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
