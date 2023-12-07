@@ -86,7 +86,7 @@ namespace Zephyr.RollGame
                 return;
             }
             _tileMap.Clear();
-            _tileMap.GenerateTile(_curStage, _testTilePrefab);
+            _tileMap.GenerateTile(_curStage, _testTilePrefab, _tilePalette);
         }
 
         public void StartGame()

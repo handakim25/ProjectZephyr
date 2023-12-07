@@ -32,7 +32,7 @@ namespace Zephyr.RollGame.Tile
             _tiles.Clear();
         }
 
-        public void GenerateTile(RollStage stage, GameObject tilePrefab)
+        public void GenerateTile(RollStage stage, GameObject tilePrefab, TilePalette tilePalette)
         {
             if(stage == null || !stage.IsValid)
             {
@@ -55,6 +55,9 @@ namespace Zephyr.RollGame.Tile
                     var tile = GameObject.Instantiate(tilePrefab, _parent);
                     tile.name = $"Tile_{x}_{y}";
                     tile.transform.localPosition = new Vector3(x + startX, y + startY, 0);
+                    int tileIndex = stage.GetTile(x, y);
+                    Sprite tileSprite = tilePalette.TileData[tileIndex].Sprite;
+                    tile.GetComponent<SpriteRenderer>().sprite = tileSprite;
                     _tiles.Add(tile);
                 }
             }
