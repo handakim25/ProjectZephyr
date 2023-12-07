@@ -298,10 +298,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae705d06ef7a29842a71022d093c0e31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tiles: {fileID: 0}
+  _tiles: {fileID: 482913808}
   _tileOffset: {x: 0.5, y: 0}
   _tilePalettePath: 
-  _tilePalette: {fileID: 0}
+  _tilePalette: {fileID: 11400000, guid: 941d0305c46178f47bc9f1f4f5b4d343, type: 2}
   _testTilePrefab: {fileID: 160152557780894736, guid: db5764494587c8f41877a0526aa855d7, type: 3}
   _curStage: {fileID: 11400000, guid: dbe321a4d7d8e2d4599f42998eeb2647, type: 2}
 --- !u!1 &552520004
