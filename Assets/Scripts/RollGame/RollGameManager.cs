@@ -54,7 +54,7 @@ namespace Zephyr.RollGame
         private void Awake()
         {
            Tiles.transform.position = _tileOffset;
-            _tileMap = new TileMap(Tiles);
+            _tileMap = new TileMap(Tiles, _testTilePrefab, _tilePalette);
 
             // if(string.IsNullOrEmpty(_tilePalettePath))
             // {
@@ -86,7 +86,7 @@ namespace Zephyr.RollGame
                 return;
             }
             _tileMap.Clear();
-            _tileMap.GenerateTile(_curStage, _testTilePrefab, _tilePalette);
+            _tileMap.GenerateTileMap(_curStage);
         }
 
         public void StartGame()

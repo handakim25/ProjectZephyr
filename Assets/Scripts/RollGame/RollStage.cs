@@ -25,6 +25,17 @@ namespace Zephyr.RollGame
             return TileMap[y * Width + x];
         }
 
+        public bool TryGetTile(int x, int y, out int tile)
+        {
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
+            {
+                tile = -1;
+                return false;
+            }
+            tile = TileMap[y * Width + x];
+            return true;
+        }
+
         public bool IsValid => Width > 0 && Height > 0;
     }
 }

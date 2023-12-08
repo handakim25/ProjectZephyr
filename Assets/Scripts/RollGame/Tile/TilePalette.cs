@@ -13,5 +13,19 @@ namespace Zephyr.RollGame.Tile
     {
         public List<TileData> TileData = new List<TileData>();
         public  List<string> TileNames => TileData.Select(tileData => tileData.TileName).ToList();
+        private TileData _defaultTileData;
+        public TileData DefaultTileData
+        {
+            get
+            {
+                _defaultTileData ??= new TileData()
+                    {
+                        Sprite = null,
+                        TileName = "Default",
+                        SpriteTilePath = ""
+                    };
+                return _defaultTileData;
+            }
+        }
     }
 }
