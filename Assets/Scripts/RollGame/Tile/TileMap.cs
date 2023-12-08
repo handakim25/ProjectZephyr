@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,7 +20,8 @@ namespace Zephyr.RollGame.Tile
         /// <summary>
         /// TileMap에 생성된 Tile들
         /// </summary>
-        private List<GameObject> _tiles = new List<GameObject>();
+        private GameObject[,] _tiles;
+        private Dictionary<GameObject, TileData> _tileDataMap;
 
         private TilePalette _tilePalette;
         private const string _defaultTilePalettePath = "RollGame/DefaultTilePalette";
@@ -95,11 +97,12 @@ namespace Zephyr.RollGame.Tile
         /// </summary>
         public void Clear()
         {
-            foreach(var tile in _tiles)
+            for(int i = 0; i < _parent.childCount; ++i)
             {
-                GameObject.Destroy(tile);
+                GameObject.Destroy(_parent.GetChild(i).gameObject);
             }
-            _tiles.Clear();
+            _tiles = null;
+            _tileDataMap.Clear();
         }
 
         /// <summary>
@@ -118,6 +121,7 @@ namespace Zephyr.RollGame.Tile
                 Debug.LogError("TileMap이 유효하지 않습니다.");
                 return;
             }
+            _tiles = new GameObject[stage.Width, stage.Height];
 
             int startX = -(stage.Width / 2);
             int startY = -(stage.Height / 2);
@@ -131,9 +135,9 @@ namespace Zephyr.RollGame.Tile
                     {
                         continue;
                     }
-                    GameObject tile = CreateTile(startX + x, startY + y, tileData);
-                    tile.name = $"Tile_{x}_{y}";
-                    _tiles.Add(tile);
+                    GameObject tile = CreateTile(startX + x, startY + y, tileData, $"Tile_{x}_{y}");
+                    _tiles[x, y] = tile;
+                    _tileDataMap.Add(tile, tileData);
                 }
             }
         }
@@ -144,11 +148,17 @@ namespace Zephyr.RollGame.Tile
         /// <param name="x">x 좌표</param>
         /// <param name="y">y 좌표</param>
         /// <param name="tileData">생성할 Tile</param>
+        /// <param name="goName">생성할 Tile의 이름</param>
         /// <returns></returns>
-        private GameObject CreateTile(int x, int y, TileData tileData)
+        private GameObject CreateTile(int x, int y, TileData tileData, string goName = null)
         {
+            if(tileData.IsEmpty)
+            {
+                return null;
+            }
             var tile = GameObject.Instantiate(TilePrefab, _parent);
             tile.transform.localPosition = new Vector3(x, y, 0);
+            tile.name = goName;
 
             tile.GetComponent<SpriteRenderer>().sprite = tileData.Sprite;
             return tile;
@@ -169,9 +179,28 @@ namespace Zephyr.RollGame.Tile
                 Debug.LogError($"TileMap의 TileIndex가 유효하지 않습니다. x: {x}, y: {y}, tileIndex: {tileIndex}");
                 return TilePalette.DefaultTileData;
             }
-            return tileIndex == 0 ? null : TilePalette.TileData[tileIndex - 1];
+            return TilePalette.TileData[tileIndex];
         }
 
-
+        /// <summary>
+        /// TileMap에서 해당 좌표의 Tile 데이터를 가져온다. 좌하단이 (0, 0), (x, y) 좌표계
+        /// </summary>
+        /// <param name="x">x 좌표</param>
+        /// <param name="y">y 좌표</param>
+        /// <returns>out of boundary</returns>
+        public TileData GetTileData(int x, int y)
+        {
+            int lengthX = _tiles.GetLength(0);
+            int lengthY = _tiles.GetLength(1);
+            if(x < 0 || x >= lengthX || y < 0 || y >= lengthY)
+            {
+                return null;
+            }
+            if(_tiles[x, y] == null)
+            {
+                return new TileData() { IsEmpty = true };
+            }
+            return _tileDataMap[_tiles[x, y]];
+        }
     }
 }
