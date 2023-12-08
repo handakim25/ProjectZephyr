@@ -127,6 +127,10 @@ namespace Zephyr.RollGame.Tile
                 for(int x = 0; x < stage.Width; ++x)
                 {
                     TileData tileData = GetTileData(stage, x, y);
+                    if(tileData == null)
+                    {
+                        continue;
+                    }
                     GameObject tile = CreateTile(startX + x, startY + y, tileData);
                     tile.name = $"Tile_{x}_{y}";
                     _tiles.Add(tile);
@@ -165,7 +169,9 @@ namespace Zephyr.RollGame.Tile
                 Debug.LogError($"TileMap의 TileIndex가 유효하지 않습니다. x: {x}, y: {y}, tileIndex: {tileIndex}");
                 return TilePalette.DefaultTileData;
             }
-            return TilePalette.TileData[tileIndex];
+            return tileIndex == 0 ? null : TilePalette.TileData[tileIndex - 1];
         }
+
+
     }
 }
