@@ -13,9 +13,18 @@ MonoBehaviour:
   m_Name: DefaultTilePalette
   m_EditorClassIdentifier: 
   TileData:
-  - Sprite: {fileID: 21300000, guid: 5d9ba4e7d0964044ea54abe409d81dfd, type: 3}
+  - IsEmpty: 1
+    CanMove: 1
+    Sprite: {fileID: 0}
     TileName: 
     SpriteTilePath: 
-  - Sprite: {fileID: 21300000, guid: 2f1eaeeaad36ee5469eff7ff158f37ba, type: 3}
+  - IsEmpty: 0
+    CanMove: 1
+    Sprite: {fileID: 21300000, guid: 2f1eaeeaad36ee5469eff7ff158f37ba, type: 3}
+    TileName: 
+    SpriteTilePath: 
+  - IsEmpty: 0
+    CanMove: 1
+    Sprite: {fileID: 21300000, guid: 5d9ba4e7d0964044ea54abe409d81dfd, type: 3}
     TileName: 
     SpriteTilePath: 
