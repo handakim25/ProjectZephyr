@@ -10,24 +10,8 @@ namespace Zephyr.RollGame.Tile
     /// </summary>
     public class TileMap
     {
-        /// <summary>
-        /// TileMap 생성자
-        /// </summary>
-        /// <param name="parent">Tile이 생성될 부모 오브젝트</param>
-        /// <param name="tilePalette">Tile 종류를 지정</param>
-        /// <param name="tilePrefab">Tile의 Prefab</param>
-        public TileMap(GameObject parent, GameObject tilePrefab = null, TilePalette tilePalette = null)
-        {
-            if(parent == null)
-            {
-                Debug.LogError("TileMap의 부모 오브젝트가 비어있습니다.");
-                return;
-            }
-            _parent = parent.transform;
-            _tilePalette = tilePalette;
-            _tilePrefab = tilePrefab;
-        }
-
+        #region Variables and Properties
+        
         /// <summary>
         /// TileMap이 생성될 부모 오브젝트의 Transfrom
         /// </summary>
@@ -85,7 +69,30 @@ namespace Zephyr.RollGame.Tile
         /// TileMap이 유효한지 체크. TilePalette와 TilePrefab이 유효한지 체크
         /// </summary>
         public bool IsValid => _parent != null && TilePalette != null && TilePrefab != null;
+        
+        #endregion Variables and Properties
 
+        /// <summary>
+        /// TileMap 생성자
+        /// </summary>
+        /// <param name="parent">Tile이 생성될 부모 오브젝트</param>
+        /// <param name="tilePalette">Tile 종류를 지정</param>
+        /// <param name="tilePrefab">Tile의 Prefab</param>
+        public TileMap(GameObject parent, GameObject tilePrefab = null, TilePalette tilePalette = null)
+        {
+            if(parent == null)
+            {
+                Debug.LogError("TileMap의 부모 오브젝트가 비어있습니다.");
+                return;
+            }
+            _parent = parent.transform;
+            _tilePalette = tilePalette;
+            _tilePrefab = tilePrefab;
+        }
+
+        /// <summary>
+        /// TileMap을 초기화한다.
+        /// </summary>
         public void Clear()
         {
             foreach(var tile in _tiles)
@@ -95,6 +102,10 @@ namespace Zephyr.RollGame.Tile
             _tiles.Clear();
         }
 
+        /// <summary>
+        /// Stage Data를 이용해 TileMap을 생성한다.
+        /// </summary>
+        /// <param name="stage">생성할 Stage Data</param>
         public void GenerateTileMap(RollStage stage)
         {
             if(stage == null || !stage.IsValid)
@@ -123,6 +134,13 @@ namespace Zephyr.RollGame.Tile
             }
         }
 
+        /// <summary>
+        /// TileData를 이용해 Tile을 생성한다.
+        /// </summary>
+        /// <param name="x">x 좌표</param>
+        /// <param name="y">y 좌표</param>
+        /// <param name="tileData">생성할 Tile</param>
+        /// <returns></returns>
         private GameObject CreateTile(int x, int y, TileData tileData)
         {
             var tile = GameObject.Instantiate(TilePrefab, _parent);
