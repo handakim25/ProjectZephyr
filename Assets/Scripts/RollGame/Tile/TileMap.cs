@@ -21,7 +21,7 @@ namespace Zephyr.RollGame.Tile
         /// TileMap에 생성된 Tile들
         /// </summary>
         private GameObject[,] _tiles;
-        private Dictionary<GameObject, TileData> _tileDataMap;
+        private Dictionary<GameObject, TileData> _tileDataMap = new();
 
         private TilePalette _tilePalette;
         private const string _defaultTilePalettePath = "RollGame/DefaultTilePalette";
@@ -131,13 +131,14 @@ namespace Zephyr.RollGame.Tile
                 for(int x = 0; x < stage.Width; ++x)
                 {
                     TileData tileData = GetTileData(stage, x, y);
-                    if(tileData == null)
-                    {
-                        continue;
-                    }
                     GameObject tile = CreateTile(startX + x, startY + y, tileData, $"Tile_{x}_{y}");
+                    if(tile == null)
+                    {
+                        return; 
+                    }
                     _tiles[x, y] = tile;
                     _tileDataMap.Add(tile, tileData);
+                    _tileDataMap.TryAdd(tile, tileData);
                 }
             }
         }
