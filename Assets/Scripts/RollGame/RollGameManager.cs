@@ -56,18 +56,14 @@ namespace Zephyr.RollGame
            Tiles.transform.position = _tileOffset;
             _tileMap = new TileMap(Tiles, _testTilePrefab, _tilePalette);
 
-            // if(string.IsNullOrEmpty(_tilePalettePath))
-            // {
-            //     Debug.LogError("TilePalettePath가 비어있습니다.");
-            // }
-            // else
-            // {
-            //     _tilePalette = Resources.Load<TilePalette>(_tilePalettePath);
-            //     if(_tilePalette == null)
-            //     {
-            //         Debug.LogError($"TilePalette를 찾을 수 없습니다 : {_tilePalettePath}");
-            //     }
-            // }
+            if(_tilePalette == null)
+            {
+                _tilePalette = Resources.Load<TilePalette>(_tilePalettePath);
+                if(_tilePalette == null)
+                {
+                    Debug.LogError($"TilePalette를 찾을 수 없습니다 : {_tilePalettePath}");
+                }
+            }
         }
 
         private void Start()
