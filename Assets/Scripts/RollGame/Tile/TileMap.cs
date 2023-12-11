@@ -99,7 +99,7 @@ namespace Zephyr.RollGame.Tile
             _tilePalette = tilePalette;
             _tilePrefab = tilePrefab;
         }
-
+        
         /// <summary>
         /// TileMap을 초기화한다.
         /// </summary>
@@ -267,7 +267,8 @@ namespace Zephyr.RollGame.Tile
                 return false;
             }
             // 이미 해당 좌표에 Tile이 있을 경우 false를 반환한다.
-            if(GetTile(x,y) != null)
+            // 만약 이미 Tile이 있는데 null을 Setting할 경우 제대로 진행한다.
+            if(GetTile(x,y) != null && tile != null)
             {
                 return false;
             }
