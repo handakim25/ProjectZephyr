@@ -130,7 +130,7 @@ namespace Zephyr.RollGame.Tile
             {
                 for(int x = 0; x < stage.Width; ++x)
                 {
-                    TileData tileData = GetTileData(stage, x, y);
+                    TileData tileData = GetStageTileData(stage, x, y);
                     GameObject tile = CreateTile(startX + x, startY + y, tileData, $"Tile_{x}_{y}");
                     if(tile == null)
                     {
@@ -172,7 +172,7 @@ namespace Zephyr.RollGame.Tile
         /// <param name="x">Stage X 좌표</param>
         /// <param name="y">Stage Y 좌표</param>
         /// <returns>잘못된 값일 경우 Default Tile을 반환</returns>
-        private TileData GetTileData(RollStage stage, int x, int y)
+        private TileData GetStageTileData(RollStage stage, int x, int y)
         {
             int tileIndex = stage.GetTile(x, y);
             if(tileIndex < 0 || tileIndex >= TilePalette.TileData.Count)
