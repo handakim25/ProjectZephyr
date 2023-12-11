@@ -16,8 +16,15 @@ namespace Zephyr.RollGame.Tile
     // https://forum.unity.com/threads/onmousedown-with-new-input-system.955053/
     public class Tile : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerDownHandler
     {
+        public TileData TileData;
         public int x;
         public int y;
+
+        public void Init(int x, int y, TileData tileData)
+        {
+            SetPos(x, y);
+            TileData = tileData;
+        }
 
         public void SetPos(int x, int y)
         {
@@ -31,7 +38,7 @@ namespace Zephyr.RollGame.Tile
         /// <param name="camera">Main Camera</param>
         /// <param name="tileMap">Tile들이 속한 TileMap</param>
         /// <param name="setting">Game Settings</param>
-        public static void Init(Camera camera, TileMap tileMap, RollGameSetting setting)
+        public static void InitTileSetting(Camera camera, TileMap tileMap, RollGameSetting setting)
         {
             s_mainCam = camera;
             s_tileMap = tileMap;
@@ -73,7 +80,7 @@ namespace Zephyr.RollGame.Tile
             _touchStartWorldPos = s_mainCam.ScreenToWorldPoint(eventData.position);
             _moveDir = MoveDir.None;
             _startTileWorldPos = transform.position;
-            _isMoving = true;
+            _isMoving = TileData.CanMove;
         }
 
         public void OnDrag(PointerEventData eventData)

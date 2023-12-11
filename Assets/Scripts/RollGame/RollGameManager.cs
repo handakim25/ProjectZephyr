@@ -67,7 +67,7 @@ namespace Zephyr.RollGame
                 }
             }
 
-            Tile.Tile.Init(Camera.main, _tileMap, _rollGameSetting);
+            Tile.Tile.InitTileSetting(Camera.main, _tileMap, _rollGameSetting);
         }
 
         private void Start()

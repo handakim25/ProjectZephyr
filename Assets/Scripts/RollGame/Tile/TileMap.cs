@@ -144,7 +144,7 @@ namespace Zephyr.RollGame.Tile
                 for(int x = 0; x < stage.Width; ++x)
                 {
                     TileData tileData = GetStageTileData(stage, x, y);
-                    GameObject tile = CreateTile(_startX + x, _startY + y, tileData, $"Tile_{x}_{y}");
+                    GameObject tile = CreateTile(x, y, tileData, $"Tile_{x}_{y}");
                     AddTile(x, y, tile, tileData);
                 }
             }
@@ -171,8 +171,8 @@ namespace Zephyr.RollGame.Tile
         /// <summary>
         /// TileData를 이용해 Tile을 생성한다.
         /// </summary>
-        /// <param name="x">x 좌표</param>
-        /// <param name="y">y 좌표</param>
+        /// <param name="x">Tile x 좌표</param>
+        /// <param name="y">Tile y 좌표</param>
         /// <param name="tileData">생성할 Tile</param>
         /// <param name="goName">생성할 Tile의 이름</param>
         /// <returns></returns>
@@ -183,10 +183,14 @@ namespace Zephyr.RollGame.Tile
                 return null;
             }
             var tile = GameObject.Instantiate(TilePrefab, _parent);
-            tile.transform.localPosition = new Vector3(x, y, 0);
+            tile.transform.localPosition = new Vector3(_startX + x, _startY + y, 0);
             tile.name = goName;
 
             tile.GetComponent<SpriteRenderer>().sprite = tileData.Sprite;
+            if(tile.TryGetComponent<Tile>(out var tileController))
+            {
+                tileController.Init(x, y, tileData);
+            }
             return tile;
         }
 
