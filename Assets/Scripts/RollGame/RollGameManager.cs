@@ -108,5 +108,22 @@ namespace Zephyr.RollGame
             // Check Game Clear Condition
             return false;
         }
+
+        #region Test Methods
+        
+        [ContextMenu("Show TileMap")]
+        public void ShowTileMap()
+        {
+            if(_tileMap == null)
+            {
+                Debug.Log($"생성된 TileMap이 없습니다.");
+                return;
+            }
+
+            Debug.Log($"Width: {_tileMap.Width}, Height: {_tileMap.Height}");
+            Debug.Log($"TileMap:\n{_tileMap}");
+        }
+        
+        #endregion Test Methods
     }
 }

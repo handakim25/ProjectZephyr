@@ -100,6 +100,11 @@ namespace Zephyr.RollGame.Tile
             _tilePrefab = tilePrefab;
         }
         
+        public override string ToString()
+        {
+            return LogTileMap();
+        }
+
         /// <summary>
         /// TileMap을 초기화한다.
         /// </summary>
@@ -306,5 +311,20 @@ namespace Zephyr.RollGame.Tile
             SetTile(x, y, tile);
             return true;
         }
+
+        public string LogTileMap()
+        {
+            string tileMapStr = "";
+            for (int y = Height - 1; y >= 0; --y)
+            {
+                for (int x = 0; x < Width; ++x)
+                {
+                    tileMapStr += _tiles[x, y] == null ? "0" : "1";
+                }
+                tileMapStr += "\n";
+            }
+            return tileMapStr;
+        }
+
     }
 }
