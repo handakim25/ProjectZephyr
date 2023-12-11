@@ -9,58 +9,163 @@ namespace Zephyr.RollGame.Tile
     // Check
     // https://stackoverflow.com/questions/41391708/how-to-detect-click-touch-events-on-ui-and-gameobjects
     // https://forum.unity.com/threads/onmousedown-with-new-input-system.955053/
-    public class Tile : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class Tile : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerDownHandler
     {
-        [field : SerializeField] public TileData TileData { get; private set; }
+        public int x;
+        public int y;
 
-        static Camera s_mainCam = null;
-
-        // PointerEvnetData : ScreenSpace, 좌하단이 (0,0)인 좌표계
-        // 이동 관련 처리할 때 Screen Space, World Space에 주의할 것
-        public void OnPointerClick(PointerEventData eventData)
+        public void SetPos(int x, int y)
         {
-            var worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
-            Debug.Log($"OnPointerClick: {worldPos}");
+            this.x = x;
+            this.y = y;
         }
 
-        private Vector3 _startWorldMousePos;
-        private MoveDir _moveDir = MoveDir.None;
-        public void OnBeginDrag(PointerEventData eventData)
+        public static void Init(Camera camera, TileMap tileMap, RollGameSetting setting)
         {
-            s_mainCam = s_mainCam != null ? s_mainCam : Camera.main;
+            s_mainCam = camera;
+            s_tileMap = tileMap;
+            s_setting = setting;
+        }
+
+        static Camera s_mainCam = null;
+        static TileMap s_tileMap = null;
+        static RollGameSetting s_setting = null;
+
+        // Tile 처리
+        // 1. 처음 이동의 경우 입력 위치를 감지해서 일정 거리 이상 움직였을 때 움직이는 것으로 판정
+        // 2. 움직임이 시작됬을 때는 해당 위치로 이동
+        // 3. 움직임을 취소할 수는 없다. 그러기 위해서는 한 번 터치를 떼야한다.
+
+        /// <summary>
+        /// DragThreshold를 체크하기 위한 터치 시작 위치
+        /// </summary>
+        private Vector2 _touchStartWorldPos;
+        /// <summary>
+        /// 현재 움직이는 방향
+        /// </summary>
+        private MoveDir _moveDir = MoveDir.None;
+        /// <summary>
+        /// 터치로 선택했을 때 Tile의 World Position
+        /// </summary>
+        private Vector2 _startTileWorldPos;
+        /// <summary>
+        /// Tile이 움직이고 있는지 여부, 움직임이 완료 되면 false가 된다.
+        /// </summary>
+        private bool _isMoving = false;
+        
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _touchStartWorldPos = s_mainCam.ScreenToWorldPoint(eventData.position);
             _moveDir = MoveDir.None;
-            _startWorldMousePos = s_mainCam.ScreenToWorldPoint(eventData.position);
+            _startTileWorldPos = transform.position;
+            _isMoving = true;
+            Debug.Log($"OnPointerDown: {_touchStartWorldPos}");
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            // Drag Threshold를 이용해도 되지만
-            // Snap이 진행이 되었을 경우, 다시 Threshold를 측정해야 되므로
-            // 직접 Threshold를 계산하고 적용한다.
-            Vector3 curWorldMousePos = s_mainCam.ScreenToWorldPoint(eventData.position);
-            if(_moveDir == MoveDir.None)
+            if(_isMoving == false)
             {
-                Vector3 deltaWorld = curWorldMousePos - _startWorldMousePos;
-                if(deltaWorld.magnitude < 0.1f)
-                {
-                    return;
-                }
-                _moveDir = Mathf.Abs(deltaWorld.x) > Mathf.Abs(deltaWorld.y) ? MoveDir.Horizontal : MoveDir.Vertical;
+                return;
             }
 
+            // eventData.delta는 값이 정밀하지 않으므로 더 정확한 판정을 위해서 직접 delta를 계산
+            Vector2 curCursorWorldPos = s_mainCam.ScreenToWorldPoint(eventData.position);
+            UpdateMoveState(curCursorWorldPos);
+
+            if (_moveDir != MoveDir.None)
+            {
+                Move(curCursorWorldPos);
+                if(CheckSnap())
+                {
+                    MoveTile();
+                }
+            }
+        }
+
+        private void UpdateMoveState(Vector2 curCursorWorldPos)
+        {
+            if(_moveDir != MoveDir.None)
+            {
+                return;
+            }
+
+            Vector2 delta = curCursorWorldPos - _touchStartWorldPos;
+            if (delta.magnitude > s_setting.TileMoveThreshold)
+            {
+                _moveDir = Mathf.Abs(delta.x) > Mathf.Abs(delta.y) ? MoveDir.Horizontal : MoveDir.Vertical;
+            }
+        }
+
+        private void Move(Vector2 curCursorWorldPos)
+        {
+            Vector2 newPos = _startTileWorldPos;
             if(_moveDir == MoveDir.Horizontal)
             {
-                transform.position = new Vector3(curWorldMousePos.x, transform.position.y, transform.position.z);
+                newPos.x = curCursorWorldPos.x;
             }
             else if(_moveDir == MoveDir.Vertical)
             {
-                transform.position = new Vector3(transform.position.x, curWorldMousePos.y, transform.position.z);
+                newPos.y = curCursorWorldPos.y;
             }
+            transform.position = newPos;
+        }
+
+        private bool CheckSnap()
+        {
+            Vector2 curPos = transform.position;
+            Vector2 delta = curPos - _startTileWorldPos;
+            if(delta.magnitude > s_setting.TileSnapThreshold)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void MoveTile()
+        {
+            _isMoving = false;
+            (int nextX, int nextY) = GetNextPos(_startTileWorldPos, x, y);
+
+            Debug.Log($"MoveTile: {x}, {y} -> {nextX}, {nextY}");
+            var tile = s_tileMap.GetTile(x, y);
+            Debug.Log($"TileMap tile : {tile}");
+
+            if (s_tileMap.MoveToTile(nextX, nextY, gameObject))
+            {
+                SetPos(nextX, nextY);
+            }
+            else
+            {
+                // Return to original Pos
+                Debug.Log($"Fail to move, return to original pos: {x}, {y}");
+                transform.position = _startTileWorldPos;
+            }
+        }
+
+        private (int, int) GetNextPos(Vector2 originWorldPos, int curX, int curY)
+        {
+            Vector2 delta = (Vector2)transform.position - originWorldPos;
+            int nextX = curX;
+            int nextY = curY;
+            switch (_moveDir)
+            {
+                case MoveDir.Horizontal:
+                    nextX += (delta.x > 0) ? 1 : -1;
+                    break;
+                case MoveDir.Vertical:
+                    nextY += (delta.y > 0) ? 1 : -1;
+                    break;
+            }
+            return (nextX, nextY);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            Debug.Log("OnEndDrag");
+            if(_isMoving)
+            {
+                transform.position = _startTileWorldPos;
+            }
         }
     }
 

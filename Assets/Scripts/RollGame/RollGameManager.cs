@@ -42,6 +42,8 @@ namespace Zephyr.RollGame
             }
         }
 
+        [SerializeField] private RollGameSetting _rollGameSetting;
+
         // 나중에 Stage Data로 분리될 영역
         [Header("Stage")]
         [SerializeField] private RollStage _curStage;
@@ -64,6 +66,8 @@ namespace Zephyr.RollGame
                     Debug.LogError($"TilePalette를 찾을 수 없습니다 : {_tilePalettePath}");
                 }
             }
+
+            Tile.Tile.Init(Camera.main, _tileMap, _rollGameSetting);
         }
 
         private void Start()
