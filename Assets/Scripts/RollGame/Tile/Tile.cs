@@ -59,7 +59,6 @@ namespace Zephyr.RollGame.Tile
             _moveDir = MoveDir.None;
             _startTileWorldPos = transform.position;
             _isMoving = true;
-            Debug.Log($"OnPointerDown: {_touchStartWorldPos}");
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -127,9 +126,7 @@ namespace Zephyr.RollGame.Tile
             _isMoving = false;
             (int nextX, int nextY) = GetNextPos(_startTileWorldPos, x, y);
 
-            Debug.Log($"MoveTile: {x}, {y} -> {nextX}, {nextY}");
             var tile = s_tileMap.GetTile(x, y);
-            Debug.Log($"TileMap tile : {tile}");
 
             if (s_tileMap.MoveToTile(nextX, nextY, gameObject))
             {
@@ -138,7 +135,6 @@ namespace Zephyr.RollGame.Tile
             else
             {
                 // Return to original Pos
-                Debug.Log($"Fail to move, return to original pos: {x}, {y}");
                 transform.position = _startTileWorldPos;
             }
         }
