@@ -24,7 +24,7 @@ MonoBehaviour:
     TileName: 
     SpriteTilePath: 
   - IsEmpty: 0
-    CanMove: 1
+    CanMove: 0
     Sprite: {fileID: 21300000, guid: 5d9ba4e7d0964044ea54abe409d81dfd, type: 3}
     TileName: 
     SpriteTilePath: 
