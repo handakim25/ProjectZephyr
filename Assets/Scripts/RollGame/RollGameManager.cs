@@ -12,6 +12,8 @@ namespace Zephyr.RollGame
     /// </summary>
     public sealed class RollGameManager : MonoSingleton<RollGameManager>
     {
+        [SerializeField] private RollGameSetting _rollGameSetting;
+
         [Header("Tile Setting")]
         [Tooltip("Tile을 생성할 부모 오브젝트")]
         [SerializeField] private GameObject _tiles;
@@ -22,7 +24,7 @@ namespace Zephyr.RollGame
         [SerializeField] private GameObject _testTilePrefab;
         private TileMap _tileMap;
 
-        public GameObject Tiles
+        public GameObject TileMapGo
         {
             get
             {
@@ -42,7 +44,27 @@ namespace Zephyr.RollGame
             }
         }
 
-        [SerializeField] private RollGameSetting _rollGameSetting;
+        [Header("Background")]
+        [SerializeField] private GameObject _background;
+        public GameObject Background
+        {
+            get
+            {
+                if(_background == null)
+                {
+                    _background = GameObject.Find("Background");
+                    if(_background == null)
+                    {
+                        _background = new GameObject("Background", typeof(SpriteRenderer));
+                    }
+                }
+                return _background;
+            }
+            set
+            {
+                _background = value;
+            }
+        }
 
         // 나중에 Stage Data로 분리될 영역
         [Header("Stage")]
@@ -55,8 +77,8 @@ namespace Zephyr.RollGame
 
         private void Awake()
         {
-           Tiles.transform.position = _tileOffset;
-            _tileMap = new TileMap(Tiles, _testTilePrefab, _tilePalette);
+           TileMapGo.transform.position = _tileOffset;
+            _tileMap = new TileMap(TileMapGo, _testTilePrefab, _tilePalette);
 
             if(_tilePalette == null)
             {
@@ -72,13 +94,13 @@ namespace Zephyr.RollGame
 
         private void Start()
         {
-            InitGame();
+            InitGame(_curStage);
         }
 
         /// <summary>
         /// 현재 설정된 Stage Data를 기반으로 게임을 초기화한다.
         /// </summary>
-        public void InitGame()
+        public void InitGame(RollStage stage)
         {
             if(!CheckValid)
             {
@@ -86,7 +108,38 @@ namespace Zephyr.RollGame
                 return;
             }
             _tileMap.Clear();
-            _tileMap.GenerateTileMap(_curStage);
+            _tileMap.GenerateTileMap(stage);
+            GenerateBackground(_tileOffset, _tileMap.Width, _tileMap.Height);
+        }
+
+        // @Memo
+        // 관련 로직이 길어질 경우 별도의 객체로 분리
+        /// <summary>
+        /// TileMap의 배경을 생성한다. 9-Slice 이미지를 이용한다.
+        /// </summary>
+        private void GenerateBackground(Vector2 tilemapOrigin, int width, int height)
+        {
+            // Tile 들의 경우 시작점이 - (width / 2)이다.
+            // 현재 Tile의 Width가 4이므로 -2가 시작점이다.
+            // 여기에 배경의 패딩을 계산해서 크기를 정한다. 
+            float bottomLeftX = - (width / 2f) - _rollGameSetting.BackgroundLeftPadding - _rollGameSetting.TileSize / 2f;
+            float bottomLeftY = - (height / 2f) - _rollGameSetting.BackgroundDownPadding - _rollGameSetting.TileSize / 2f;
+            
+            if(Background.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
+            {
+                // Sprite Size
+                // x : width + (left padding + right padding)
+                // y : height + (up padding + down padding)
+                spriteRenderer.size = new Vector2(width + _rollGameSetting.BackgroundLeftPadding + _rollGameSetting.BackgroundRightPadding,
+                    height + _rollGameSetting.BackgroundUpPadding + _rollGameSetting.BackgroundDownPadding);
+                // Sprite Position
+
+                spriteRenderer.transform.position = new Vector3(bottomLeftX + (width / 2f), bottomLeftY + (height / 2f), 0);
+            }
+            else
+            {
+                Debug.LogError($"SpriteRenderer를 찾을 수 없습니다.");
+            }
         }
 
         public void StartGame()
