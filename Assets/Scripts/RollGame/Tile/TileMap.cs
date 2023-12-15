@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Zephyr.RollGame.Tile
 {
+    // @Memo
+    // Tile을 그냥 GameObject로 만들어서 사용하는 것도 고려할 것
+    // Editor Script를 활용할 수도 있고 Gizmo를 그려주는 등 다양하게 사용할 수 있을 것 같다.
+
+
     /// <summary>
     /// RollGame의 TileMap을 나타내는 클래스
     /// Tile은 좌하단부터 (0, 0), (1, 0), ((2, 0), ... (0, 1), (1, 1), (2, 1), ... 순서로 생성됩니다.
@@ -110,9 +115,15 @@ namespace Zephyr.RollGame.Tile
         /// </summary>
         public void Clear()
         {
-            for(int i = 0; i < _parent.childCount; ++i)
+            if (_tiles != null)
             {
-                GameObject.Destroy(_parent.GetChild(i).gameObject);
+                foreach (GameObject tile in _tiles)
+                {
+                    if (tile != null)
+                    {
+                        GameObject.Destroy(tile);
+                    }
+                }
             }
             _tiles = null;
             _tileDataMap.Clear();
