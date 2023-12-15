@@ -36,6 +36,9 @@ namespace Zephyr.RollGame
             return true;
         }
 
+        public Sprite BackgroundSprite;
+        public string BackgroundSpritePath;
+
         public bool IsValid => Width > 0 && Height > 0;
     }
 }

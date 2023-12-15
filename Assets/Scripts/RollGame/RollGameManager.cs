@@ -44,6 +44,9 @@ namespace Zephyr.RollGame
             }
         }
 
+        // @To-Do
+        // Prefab으로 분리, Monobehaviour로 구현
+        // 의존성은 Awake에서 설정할 것
         [Header("Background")]
         [SerializeField] private GameObject _background;
         public GameObject Background
@@ -56,6 +59,7 @@ namespace Zephyr.RollGame
                     if(_background == null)
                     {
                         _background = new GameObject("Background", typeof(SpriteRenderer));
+                        _background.transform.parent = TileMapGo.transform;
                     }
                 }
                 return _background;
@@ -77,9 +81,6 @@ namespace Zephyr.RollGame
 
         private void Awake()
         {
-           TileMapGo.transform.position = _tileOffset;
-            _tileMap = new TileMap(TileMapGo, _testTilePrefab, _tilePalette);
-
             if(_tilePalette == null)
             {
                 _tilePalette = Resources.Load<TilePalette>(_tilePalettePath);
@@ -88,6 +89,9 @@ namespace Zephyr.RollGame
                     Debug.LogError($"TilePalette를 찾을 수 없습니다 : {_tilePalettePath}");
                 }
             }
+
+           TileMapGo.transform.position = _tileOffset;
+            _tileMap = new TileMap(TileMapGo, _testTilePrefab, _tilePalette);
 
             Tile.Tile.InitTileSetting(Camera.main, _tileMap, _rollGameSetting);
         }
@@ -109,7 +113,7 @@ namespace Zephyr.RollGame
             }
             _tileMap.Clear();
             _tileMap.GenerateTileMap(stage);
-            GenerateBackground(_tileOffset, _tileMap.Width, _tileMap.Height);
+            SetBackground(_tileMap.Width, _tileMap.Height, _curStage.BackgroundSprite);
         }
 
         // @Memo
@@ -117,29 +121,19 @@ namespace Zephyr.RollGame
         /// <summary>
         /// TileMap의 배경을 생성한다. 9-Slice 이미지를 이용한다.
         /// </summary>
-        private void GenerateBackground(Vector2 tilemapOrigin, int width, int height)
+        private void SetBackground(int width, int height, Sprite bgSprite)
         {
-            // Tile 들의 경우 시작점이 - (width / 2)이다.
-            // 현재 Tile의 Width가 4이므로 -2가 시작점이다.
-            // 여기에 배경의 패딩을 계산해서 크기를 정한다. 
-            float bottomLeftX = - (width / 2f) - _rollGameSetting.BackgroundLeftPadding - _rollGameSetting.TileSize / 2f;
-            float bottomLeftY = - (height / 2f) - _rollGameSetting.BackgroundDownPadding - _rollGameSetting.TileSize / 2f;
             
-            if(Background.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
+            if(!Background.TryGetComponent<SpriteRenderer>(out var backgroundSprite))
             {
-                // Sprite Size
-                // x : width + (left padding + right padding)
-                // y : height + (up padding + down padding)
-                spriteRenderer.size = new Vector2(width + _rollGameSetting.BackgroundLeftPadding + _rollGameSetting.BackgroundRightPadding,
-                    height + _rollGameSetting.BackgroundUpPadding + _rollGameSetting.BackgroundDownPadding);
-                // Sprite Position
-
-                spriteRenderer.transform.position = new Vector3(bottomLeftX + (width / 2f), bottomLeftY + (height / 2f), 0);
+                backgroundSprite = Background.AddComponent<SpriteRenderer>();
             }
-            else
-            {
-                Debug.LogError($"SpriteRenderer를 찾을 수 없습니다.");
-            }
+            // After-Work
+            backgroundSprite.sprite = bgSprite;
+            backgroundSprite.drawMode = SpriteDrawMode.Sliced;
+            backgroundSprite.size = new Vector2(width + _rollGameSetting.BackgroundLeftPadding + _rollGameSetting.BackgroundRightPadding,
+                height + _rollGameSetting.BackgroundUpPadding + _rollGameSetting.BackgroundDownPadding);
+            Background.transform.localPosition = new Vector3(- _rollGameSetting.TileSize / 2f, - _rollGameSetting.TileSize / 2f, 0);
         }
 
         public void StartGame()
